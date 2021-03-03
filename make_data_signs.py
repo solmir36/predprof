@@ -12,35 +12,33 @@ time.sleep(0.1)
 
 cv.namedWindow("1")
 
-mask_min = [200, 100, 100]
-mask_max = [255, 255, 255]
+minh = 0
+mins = 0
+minv = 0
+maxh = 0
+maxs = 0
+maxv = 0
 
-def minh(v):
-    mask_min[0] = v
-def mins(v):
-    mask_min[1] = v
-def minv(v):
-    mask_min[2] = v
-def maxh(v):
-    mask_max[0] = v
-def maxs(v):
-    mask_max[1] = v
-def maxv(v):
-    mask_max[2] = v
-
-cv.createTrackbar("minh", "1", 0, 255, minh)
-cv.createTrackbar("mins", "1", 0, 255, mins)
-cv.createTrackbar("minv", "1", 0, 255, minv)
-cv.createTrackbar("maxh", "1", 0, 255, maxh)
-cv.createTrackbar("maxs", "1", 0, 255, maxs)
-cv.createTrackbar("maxv", "1", 0, 255, maxv)
+cv.createTrackbar("minh", "1", 0, 255)
+cv.createTrackbar("mins", "1", 0, 255)
+cv.createTrackbar("minv", "1", 0, 255)
+cv.createTrackbar("maxh", "1", 0, 255)
+cv.createTrackbar("maxs", "1", 0, 255)
+cv.createTrackbar("maxv", "1", 0, 255)
 
 i = 0
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
     image = frame.array
+	
+	minh = cv.getTrackbarPos("minh", "1")
+	mins = cv.getTrackbarPos("mins", "1")
+	minv = cv.getTrackbarPos("minv", "1")
+	maxh = cv.getTrackbarPos("maxh", "1")
+	maxs = cv.getTrackbarPos("maxs", "1")
+	maxv = cv.getTrackbarPos("maxv", "1")
 
-    #hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-    mask = cv.inRange(image, mask_min, mask_max)
+    hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
+    mask = cv.inRange(image, (minh, mins, minv), (maxh, maxs, maxv))
     contours, _ = cv.findContours(mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
     if len(contours):
