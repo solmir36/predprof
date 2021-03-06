@@ -41,7 +41,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     maxv = cv.getTrackbarPos("maxv", "1")
     
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-    mask = cv.inRange(image, (minh, mins, minv), (maxh, maxs, maxv))
+    mask = cv.inRange(hsv, (minh, mins, minv), (maxh, maxs, maxv))
     cv.imshow("3", mask)
     contours, _ = cv.findContours(mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 

@@ -10,19 +10,19 @@ camera.framerate = 32
 rawCapture = PiRGBArray(camera, size=(640, 480))
 time.sleep(0.1)
 
-minh = 194
-mins = 84
-minv = 234
-maxh = 255
-maxs = 255
-maxv = 255
+minh = 135
+mins = 27
+minv = 123
+maxh = 225
+maxs = 170
+maxv = 237
 
 i = 0
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
     image = frame.array
     
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-    mask = cv.inRange(image, (minh, mins, minv), (maxh, maxs, maxv))
+    mask = cv.inRange(hsv, (minh, mins, minv), (maxh, maxs, maxv))
     contours, _ = cv.findContours(mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
     if len(contours):
