@@ -68,7 +68,6 @@ class Robot:
         rho = 1  
         theta = np.pi / 180  
         min_threshold = 10
-        cv.imshow("3", cropped_edges)
         line_segments = cv.HoughLinesP(cropped_edges, rho, theta, min_threshold, np.array([]), minLineLength=5, maxLineGap=0)
         return line_segments
 

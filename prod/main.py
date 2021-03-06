@@ -36,7 +36,6 @@ maxs = 255
 maxv = 255
 
 def get_sign(image):
-    cv.imshow("1", image)
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
     mask = cv.inRange(hsv, (minh, mins, minv), (maxh, maxs, maxv))
     contours, _ = cv.findContours(mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
@@ -44,7 +43,7 @@ def get_sign(image):
     if len(contours):
         rect = cv.boundingRect(max(contours, key=cv.contourArea))
         sign = image[rect[1]:rect[1]+rect[3], rect[0]:rect[0]+rect[2]]
-        cv.imshow("2", sign)
+        cv.imshow("sign", sign)
 
         im = cv.cvtColor(sign, cv.COLOR_BGR2GRAY)
         im = cv.resize(im, (64, 64))
@@ -57,8 +56,8 @@ def get_sign(image):
         return sign
     return "none"
 
-robot = line.Robot(0.6, 0)
-speed = 20
+robot = line.Robot(0.4, 0)
+speed = 30
 i = 0
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
     image = frame.array
@@ -67,9 +66,9 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     print(sign, speed)
 
     if sign == "stop":
-        #robot.ml.ChangeDutyCycle(0)
-        #robot.mr.ChangeDutyCycle(0)
-        #break
+        robot.ml.stop()
+        robot.mr.stop()
+        break
         pass
     elif sign == "speed20":
         speed = 10
