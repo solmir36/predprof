@@ -10,12 +10,12 @@ camera.framerate = 32
 rawCapture = PiRGBArray(camera, size=(640, 480))
 time.sleep(0.1)
 
-minh = 135
-mins = 27
-minv = 123
-maxh = 225
-maxs = 170
-maxv = 237
+minh = 137
+mins = 45
+minv = 27
+maxh = 255
+maxs = 255
+maxv = 255
 
 i = 0
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):

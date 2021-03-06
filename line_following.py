@@ -160,10 +160,7 @@ def get_steering_angle(frame, lane_lines):
 
     return steering_angle
 
-i = 0
-for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-    image = frame.array
-
+def line(image, speed):
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
     edges = detect_edges(hsv)
     roi = region_of_interest(edges)
@@ -174,8 +171,8 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     err = steering_angle - 90
     up = err * kp + (err - erld) * kd
     erld = err
-    vl = 30 + up
-    vr = 30 - up
+    vl = speed + up
+    vr = speed - up
     
     if abs(vl) >= 100:
         vl = vl // abs(vl)
@@ -198,11 +195,16 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
         GPIO.output(IN3, GPIO.HIGH)
         GPIO.output(IN4, GPIO.LOW)
 
-    print(vl, " ", vr)
-
     ml.ChangeDutyCycle(vl);
     mr.ChangeDutyCycle(vr);
-    
+
+
+i = 0
+for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+    image = frame.array
+
+    line(image, 30)
+
     i += 1
     rawCapture.truncate(0)
     
