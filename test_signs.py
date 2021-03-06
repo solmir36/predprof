@@ -14,14 +14,16 @@ model = tf.keras.models.load_model('model.h5')
 
 def decode(one_hot_encode):
     label = ""
-    if one_hot_encode == [1, 0, 0, 0]:
+    if one_hot_encode == [1, 0, 0, 0, 0]:
         label = "speed20"
-    elif one_hot_encode == [0, 1, 0, 0]:
+    elif one_hot_encode == [0, 1, 0, 0, 0]:
         label = "speed40"
-    elif one_hot_encode == [0, 0, 1, 0]:
+    elif one_hot_encode == [0, 0, 1, 0, 0]:
         label = "hill"
-    else:
+    elif one_hot_encode == [0, 0, 0, 1, 0]:
         label = "stop"
+    else:
+        label = "none"
     return label
 
 minh = 135
@@ -31,10 +33,7 @@ maxh = 225
 maxs = 170
 maxv = 237
 
-i = 0
-for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-    image = frame.array
-
+def get_sign(image):
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
     mask = cv.inRange(hsv, (minh, mins, minv), (maxh, maxs, maxv))
     contours, _ = cv.findContours(mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
@@ -52,10 +51,15 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
         pred = model.predict(im)[0]
         sign = decode(list(map(lambda x: x == max(pred), pred)))
+        return sign
+    return "none"
 
-        print(sign)
-    else:
-        print("none")
+i = 0
+for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+    image = frame.array
+
+    sign = get_sign(image)
+    print(sign)
 
     i += 1
     rawCapture.truncate(0)
