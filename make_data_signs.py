@@ -10,43 +10,26 @@ camera.framerate = 32
 rawCapture = PiRGBArray(camera, size=(640, 480))
 time.sleep(0.1)
 
-cv.namedWindow("1")
-
-minh = 0
-mins = 0
-minv = 0
-maxh = 0
-maxs = 0
-maxv = 0
-
-cv.createTrackbar("minh", "1", 0, 255)
-cv.createTrackbar("mins", "1", 0, 255)
-cv.createTrackbar("minv", "1", 0, 255)
-cv.createTrackbar("maxh", "1", 0, 255)
-cv.createTrackbar("maxs", "1", 0, 255)
-cv.createTrackbar("maxv", "1", 0, 255)
+minh = 194
+mins = 84
+minv = 234
+maxh = 255
+maxs = 255
+maxv = 255
 
 i = 0
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
     image = frame.array
-	
-	minh = cv.getTrackbarPos("minh", "1")
-	mins = cv.getTrackbarPos("mins", "1")
-	minv = cv.getTrackbarPos("minv", "1")
-	maxh = cv.getTrackbarPos("maxh", "1")
-	maxs = cv.getTrackbarPos("maxs", "1")
-	maxv = cv.getTrackbarPos("maxv", "1")
-
+    
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
     mask = cv.inRange(image, (minh, mins, minv), (maxh, maxs, maxv))
     contours, _ = cv.findContours(mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
     if len(contours):
         rect = cv.boundingRect(max(contours, key=cv.contourArea))
-        cv.rectangle(image, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0))
-
-    #cv.imwrite("imgs/" + str(i) + ".jpg", image)
-    cv.imshow("1", image)
+        sign = image[rect[1]:rect[1]+rect[3], rect[0]:rect[0]+rect[2]]
+        cv.imwrite("imgs/" + str(i) + ".jpg", sign)
+        cv.imshow("1", sign)
 
     i += 1
     rawCapture.truncate(0)
