@@ -36,6 +36,8 @@ maxs = 255
 maxv = 255
 
 def get_sign(image):
+    image = image[0:image.shape[0], image.shape[1]-300:image.shape[1]]
+    cv.imshow("roi", image)
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
     mask = cv.inRange(hsv, (minh, mins, minv), (maxh, maxs, maxv))
     contours, _ = cv.findContours(mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
@@ -52,33 +54,38 @@ def get_sign(image):
         im = tf.convert_to_tensor([im])
 
         pred = model.predict(im)[0]
-        sign = decode(list(map(lambda x: x == max(pred), pred)))
+        sign = decode(list(map(lambda x: 1 if x == max(pred) else 0, pred)))
         return sign
     return "none"
 
 robot = line.Robot(0.4, 0)
 speed = 30
 i = 0
+pred_i = 0
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
     image = frame.array
+    cv.imshow("1", image)
+    
+    if i - pred_i >= 10:
+        pred_i = i
+        sign = get_sign(image)
+        print(sign, speed)
 
-    sign = get_sign(image)
-    print(sign, speed)
-
-    if sign == "stop":
-        robot.ml.stop()
-        robot.mr.stop()
-        break
-        pass
-    elif sign == "speed20":
-        speed = 10
-    elif sign == "speed40":
-        speed = 15
+        if sign == "stop":
+            robot.ml.stop()
+            robot.mr.stop()
+            break
+        elif sign == "speed20":
+            speed = 20
+        else:
+            speed = 40
+    
     robot.line(image, speed)
 
     i += 1
     rawCapture.truncate(0)
     
     if cv.waitKey(1) == 27:
+        robot.ml.stop()
+        robot.mr.stop()
         break
-

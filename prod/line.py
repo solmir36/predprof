@@ -26,15 +26,15 @@ class Robot:
 
         GPIO.output(IN1, GPIO.HIGH)
         GPIO.output(IN2, GPIO.LOW)
-        self.ml = GPIO.PWM(ENA, 1000)
+        self.ml = GPIO.PWM(ENA, 1000) 
         self.ml.stop()
-        self.ml.start(100)
+        self.ml.start(10)
 
         GPIO.output(IN3, GPIO.HIGH)
         GPIO.output(IN4, GPIO.LOW)
         self.mr = GPIO.PWM(ENB, 1000)
         self.mr.stop()
-        self.mr.start(100)
+        self.mr.start(10)
 
         self.kp = kp
         self.kd = kd
