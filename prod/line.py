@@ -4,6 +4,7 @@ from picamera import PiCamera
 from picamera.array import PiRGBArray
 import math
 import RPi.GPIO as GPIO
+import func
 
 IN1 = 1
 IN2 = 7
@@ -11,6 +12,16 @@ IN3 = 8
 IN4 = 25
 ENA = 12
 ENB = 13
+
+RECT = np.float32([[0, 299],
+                   [399, 299],
+                   [399, 0],
+                   [0, 0]])
+
+TRAP = np.float32([[0, 299],
+                   [399, 299],
+                   [320, 200],
+                   [80, 200]])
 
 class Robot:
     def __init__(self, kp, kd):
@@ -148,7 +159,7 @@ class Robot:
 
         return steering_angle
 
-    def line(self, image, speed):
+    def line_old(self, image, speed, way):
         hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
         edges = self.detect_edges(hsv)
         roi = self.region_of_interest(edges)
@@ -156,7 +167,13 @@ class Robot:
         lane_lines = self.average_slope_intercept(image, line_segments)
         steering_angle = self.get_steering_angle(image, lane_lines)
 
-        err = steering_angle - 90
+        err = 0
+        if way == 'forward':
+            err = steering_angle - 90
+        elif way == 'right':
+            err = steering_angle - 120
+        elif way == 'left':
+            err = steering_angle - 60
         up = err * self.kp + (err - self.erld) * self.kd
         self.erld = err
         vl = speed + up
@@ -185,3 +202,40 @@ class Robot:
 
         self.ml.ChangeDutyCycle(vl)
         self.mr.ChangeDutyCycle(vr)
+
+    def line(self, img, speed, way):
+        img = cv.resize(img, (400, 300))
+        binary = func.binarize(img, d=1)
+        perspective = func.trans_perspective(binary, TRAP, RECT, (400, 300))
+        left, right = func.centre_mass(perspective, d=1)
+        err = 0 - ((left + right) // 2 - 200)
+        up = err * self.kp + (err - self.erld) * self.kd
+        self.erld = err
+        vl = speed + up
+        vr = speed - up
+        
+        if abs(vl) >= 100:
+            vl = vl // abs(vl)
+        if abs(vr) >= 100:
+            vr = vr // abs(vr)
+
+        if vl < 0:
+            GPIO.output(IN1, GPIO.LOW)
+            GPIO.output(IN2, GPIO.HIGH)
+            vl = -vl
+        else:
+            GPIO.output(IN1, GPIO.HIGH)
+            GPIO.output(IN2, GPIO.LOW)
+
+        if vr < 0:
+            GPIO.output(IN3, GPIO.LOW)
+            GPIO.output(IN4, GPIO.HIGH)
+            vr = -vr
+        else:
+            GPIO.output(IN3, GPIO.HIGH)
+            GPIO.output(IN4, GPIO.LOW)
+
+        self.ml.ChangeDutyCycle(vl)
+        self.mr.ChangeDutyCycle(vr)
+
+

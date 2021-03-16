@@ -59,14 +59,14 @@ def get_sign(image):
     return "none"
 
 robot = line.Robot(0.4, 0)
-speed = 30
+speed = 20
 i = 0
 pred_i = 0
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
     image = frame.array
     cv.imshow("1", image)
     
-    if i - pred_i >= 10:
+    if i - pred_i < -1:
         pred_i = i
         sign = get_sign(image)
         print(sign, speed)
@@ -76,11 +76,11 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
             robot.mr.stop()
             break
         elif sign == "speed20":
-            speed = 20
+            speed = 10
         else:
-            speed = 40
+            speed = 30
     
-    robot.line(image, speed)
+    robot.line(image, speed, 'forward')
 
     i += 1
     rawCapture.truncate(0)

@@ -28,12 +28,5 @@ GPIO.output(IN4, GPIO.LOW)
 mr = GPIO.PWM(ENB, 1000)
 mr.stop()
 
-ml.start(100)
-mr.start(100)
-time.sleep(3)
-ml.ChangeDutyCycle(20)
-mr.ChangeDutyCycle(50)
-time.sleep(3)
-
 ml.stop()
 mr.stop()
