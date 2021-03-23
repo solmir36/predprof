@@ -66,7 +66,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     image = frame.array
     cv.imshow("1", image)
     
-    if i - pred_i < -1:
+    if i - pred_i > 10:
         pred_i = i
         sign = get_sign(image)
         print(sign, speed)
@@ -77,7 +77,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
             break
         elif sign == "speed20":
             speed = 10
-        else:
+        elif sign != "none":
             speed = 30
     
     robot.line(image, speed, 'forward')
