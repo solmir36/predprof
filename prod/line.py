@@ -208,7 +208,11 @@ class Robot:
         binary = func.binarize(img, d=1)
         perspective = func.trans_perspective(binary, TRAP, RECT, (400, 300))
         left, right = func.centre_mass(perspective, d=1)
+
         err = 0 - ((left + right) // 2 - 200)
+        if way == 'right':
+            err = 250 - right
+        
         up = err * self.kp + (err - self.erld) * self.kd
         self.erld = err
         vl = speed + up
