@@ -42,14 +42,12 @@ def find_left_right(perspective, d=0):
 
 def centre_mass(perspective, d=0):
     hist = np.sum(perspective, axis=0)
-    if d:
-        cv2.imshow("Perspektiv2in",perspective)
 
     mid = hist.shape[0] // 2
     i = 0
     centre = 0
     sum_mass = 0
-    while (i <= mid):
+    while (i <= mid - 50):
         centre += hist[i] * (i + 1)
         sum_mass += hist[i]
         i += 1
@@ -60,7 +58,7 @@ def centre_mass(perspective, d=0):
 
     centre = 0
     sum_mass = 0
-    i = mid
+    i = mid + 50
     while (i < hist.shape[0]):
         centre += hist[i] * (i + 1)
         sum_mass += hist[i]

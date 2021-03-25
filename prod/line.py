@@ -205,14 +205,16 @@ class Robot:
 
     def line(self, img, speed, way):
         img = cv.resize(img, (400, 300))
-        binary = func.binarize(img, d=1)
+        binary = func.binarize(img)
         perspective = func.trans_perspective(binary, TRAP, RECT, (400, 300))
         left, right = func.centre_mass(perspective, d=1)
 
         err = 0 - ((left + right) // 2 - 200)
         if way == 'right':
             err = 250 - right
-        
+        elif way == 'left':
+            err = 150 - left
+
         up = err * self.kp + (err - self.erld) * self.kd
         self.erld = err
         vl = speed + up

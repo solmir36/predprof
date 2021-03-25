@@ -37,7 +37,6 @@ maxv = 255
 
 def get_sign(image):
     image = image[0:image.shape[0], image.shape[1]-300:image.shape[1]]
-    cv.imshow("roi", image)
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
     mask = cv.inRange(hsv, (minh, mins, minv), (maxh, maxs, maxv))
     contours, _ = cv.findContours(mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
@@ -58,15 +57,19 @@ def get_sign(image):
         return sign
     return "none"
 
-robot = line.Robot(0.4, 0.1)
+robot = line.Robot(0.4, 0)
 speed = 20
+way = 'forward'
 i = 0
 pred_i = 0
+i_cr = 0
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
     image = frame.array
     cv.imshow("1", image)
     
-    if i - pred_i > 10:
+    if i - pred_i > 7:
+        robot.ml.ChangeDutyCycle(5);
+        robot.mr.ChangeDutyCycle(5);
         pred_i = i
         sign = get_sign(image)
         print(sign, (speed + 10) // 10 * 10)
@@ -77,10 +80,20 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
             break
         elif sign == "speed20":
             speed = 15
+            robot.kp = 0.3
+            robot.kd = 0
+        elif sign == "left":
+            way = "left"
+            i_cr = i
         elif sign != "none":
             speed = 30
+            robot.kp = 0.4
+            robot.kd = 0.1
+
+    if i - i_cr > 20:
+        way = "forward"
     
-    robot.line_old(image, speed, 'forward')
+    robot.line(image, speed, way)
 
     i += 1
     rawCapture.truncate(0)
