@@ -16,16 +16,20 @@ model = tf.keras.models.load_model('model.h5')
 
 def decode(one_hot_encode):
     label = ""
-    if one_hot_encode == [1, 0, 0, 0, 0]:
+    if one_hot_encode == [1, 0, 0, 0, 0, 0, 0]:
         label = "speed20"
-    elif one_hot_encode == [0, 1, 0, 0, 0]:
+    elif one_hot_encode == [0, 1, 0, 0, 0, 0, 0]:
         label = "speed40"
-    elif one_hot_encode == [0, 0, 1, 0, 0]:
+    elif one_hot_encode == [0, 0, 1, 0, 0, 0, 0]:
         label = "hill"
-    elif one_hot_encode == [0, 0, 0, 1, 0]:
+    elif one_hot_encode == [0, 0, 0, 1, 0, 0, 0]:
         label = "stop"
-    else:
+    elif one_hot_encode == [0, 0, 0, 0, 1, 0, 0]:
         label = "none"
+    elif one_hot_encode == [0, 0, 0, 0, 0, 1, 0]:
+        label = "left"
+    else:
+        label = "right"
     return label
 
 minh = 137
@@ -57,8 +61,8 @@ def get_sign(image):
         return sign
     return "none"
 
-robot = line.Robot(0.4, 0)
-speed = 20
+robot = line.Robot(0.4, 0.05)
+speed = 30
 way = 'forward'
 i = 0
 pred_i = 0
@@ -67,7 +71,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     image = frame.array
     cv.imshow("1", image)
     
-    if i - pred_i > 7:
+    if i - pred_i < 0:
         robot.ml.ChangeDutyCycle(5);
         robot.mr.ChangeDutyCycle(5);
         pred_i = i
@@ -83,15 +87,15 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
             robot.kp = 0.3
             robot.kd = 0
         elif sign == "left":
-            way = "left"
+            way = 'left'
             i_cr = i
         elif sign != "none":
             speed = 30
-            robot.kp = 0.4
-            robot.kd = 0.1
+            robot.kp = 0.35
+            robot.kd = 0.05
 
-    if i - i_cr > 20:
-        way = "forward"
+    if i - i_cr > 40:
+        way = 'forward'
     
     robot.line(image, speed, way)
 

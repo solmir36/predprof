@@ -211,9 +211,9 @@ class Robot:
 
         err = 0 - ((left + right) // 2 - 200)
         if way == 'right':
-            err = 250 - right
+            err = 280 - right
         elif way == 'left':
-            err = 150 - left
+            err = 120 - left
 
         up = err * self.kp + (err - self.erld) * self.kd
         self.erld = err
